@@ -16,7 +16,7 @@ class Tasks (models.Model) :
 
     ]
 
-    titre = models.CharField(max_length=100)
+    titre = models.CharField(max_length=100, unique = True)
     description = models.TextField()
     date_echeance = models.DateTimeField()
     priorite = models.CharField(choices = PRIORITE_CHOICES, default = 'faible') # Correction de la valeur par défaut
