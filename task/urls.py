@@ -16,18 +16,23 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
+from Users import views
+from Users.views import CustomTokenObtainPairView, logout_master
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
     #endpoints d'APIs
-    path('tasksMaster/', include('Tasks.urls')),
+    path('tasksMaster/', include('Tasks.urls')), 
+    path('taskMasters/', include('Users.urls')),    
     
-    path('taskMasters/', include('Users.urls')),
+    # Login et Logout utilisant JWT
+    path('tasksMasters/login/', CustomTokenObtainPairView.as_view(), name='tasksMasters_login'),
+    path('tasksMasters/logout/', logout_master, name='tasksMasters_logout'),
     
     #endpoints de Token
-    path('tasksMasters/acces_token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('tasksMasters/refresh_token/',  TokenRefreshView.as_view(), name='token_refresh')
+    path('tasksMasters/refresh_token/',  TokenRefreshView.as_view(), name='token_refresh'),
+    path('tasksMasters/get_csrf_token/', views.get_csrf_token, name='get_csrf_token'),
 ]
