@@ -35,4 +35,7 @@ urlpatterns = [
     #endpoints de Token
     path('tasksMasters/refresh_token/',  TokenRefreshView.as_view(), name='token_refresh'),
     path('tasksMasters/get_csrf_token/', views.get_csrf_token, name='get_csrf_token'),
+    
+    # Urls pour l'authentification sociale Allauth
+    path('accounts/', include('allauth.urls')),
 ]

@@ -44,8 +44,19 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'Users',
-    'Tasks'
+    'Tasks',
+    
+    # Requis par allauth :
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # Ajoutez les fournisseurs spécifiques que vous voulez utiliser :
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
 ]
+
+SITE_ID = 1
 
 AUTH_USER_MODEL = 'Users.Masters'
 
@@ -57,7 +68,45 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    'allauth.account.middleware.AccountMiddleware',
+    
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # Port de Next
+    "http://192.168.1.67:3000", # l'IP et le port de votre serveur de développement Next.js
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    
+    'google': {
+        
+        'APP': {
+            
+            'client_id': os.getenv('GOOGLE_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_CLIENT_SECRET'),
+            
+        },
+        'SCOPE': ['profile', 'email'],  # Les scopes que vous souhaitez demander
+        'AUTH_PARAMS': {'access_type': 'online'},  # Paramètres d'authentification supplémentaires
+        'METHOD': 'oauth2',  # Méthode d'authentification
+        'VERIFIED_EMAIL': True,  # Vérifier les emails
+    },
+    
+    'github': {
+        
+        'APP': {
+            
+            'client_id': os.getenv('GITHUB_CLIENT_ID'),
+            'secret': os.getenv('GITHUB_CLIENT_SECRET'),
+        
+        }
+    }
+}
+
+SOCIALACCOUNT_LOGIN_ON_GET = True  # Pour permettre la connexion via GET
 
 ROOT_URLCONF = 'task.urls'
 
@@ -73,32 +122,9 @@ from datetime import timedelta
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=1440), 
     "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': False,
-    'UPDATE_LAST_LOGIN': True,
-
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY, # Utilise ta clé secrète Django
-    'VERIFYING_KEY': None,
-    'AUDIENCE': None,
-    'ISSUER': None,
-    'JWK_URL': None,
-    'LEEWAY': 0,
-
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',), # Format de l'en-tête Authorization
-    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-    'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-
-    'JTI_CLAIM': 'jti',
-
-    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),    
 }
 
 TEMPLATES = [
@@ -115,6 +141,46 @@ TEMPLATES = [
         },
     },
 ]
+
+
+AUTHENTICATION_BACKENDS = [
+    
+    'django.contrib.auth.backends.ModelBackend',  # Backend Django par défaut
+    
+    'allauth.account.auth_backends.AuthenticationBackend', # Pour la gestion des comptes allauth
+]
+
+
+
+# Les clés SOCIAL_AUTH pour Google et GitHub sont supprimées
+
+# URLs de redirection
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/home/'  # Page après connexion
+LOGOUT_URL = '/logout/'
+LOGOUT_REDIRECT_URL = '/login/'
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        # Les loggers pour social_django et social_core sont supprimés
+        'django': { # Exemple de logger qui pourrait rester
+            'handlers': ['console'],
+            'level': 'INFO', # Ajustez le niveau selon vos besoins
+        }
+    },
+}
+
+# SOCIAL_AUTH_PIPELINE est supprimé car social_django n'est plus utilisé
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour tester
 
 WSGI_APPLICATION = 'task.wsgi.application'
 
