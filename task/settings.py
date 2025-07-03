@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt',
     'Users',
@@ -54,9 +55,27 @@ INSTALLED_APPS = [
     # Ajoutez les fournisseurs spécifiques que vous voulez utiliser :
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
+    
+    #pour reinitialiser le mot passe
+    'rest_framework.authtoken', # Nécessaire pour dj-rest-auth
+    'dj_rest_auth',
 ]
 
 SITE_ID = 1
+
+# URL de votre frontend pour la réinitialisation du mot de passe
+PASSWORD_RESET_CONFIRM_URL = 'http://localhost:3000/reset-password/confirm/{uid}/{token}/'
+
+REST_AUTH = {
+    'OLD_PASSWORD_FIELD_ENABLED': True,
+    'PASSWORD_RESET_USE_SITES_DOMAIN': False,
+    # *** TRÈS IMPORTANT : Le chemin doit correspondre à l'emplacement de ton utils.py ***
+    'PASSWORD_RESET_URL_GENERATOR': 'Users.utils.custom_password_reset_url_generator', # OU 'Tasks.utils.custom_password_reset_url_generator' si tu l'as mis là
+}
+
+ACCOUNT_LOGIN_METHODS = ['email']
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_SIGNUP_FIELDS = ['email*']
 
 AUTH_USER_MODEL = 'Users.Masters'
 
@@ -75,7 +94,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Port de Next
+    "http://localhost:3000",  # Port de votre frontend Next.js
     "http://192.168.1.67:3000", # l'IP et le port de votre serveur de développement Next.js
 ]
 
@@ -180,7 +199,18 @@ LOGGING = {
 # SOCIAL_AUTH_PIPELINE est supprimé car social_django n'est plus utilisé
 
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour tester
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_USER')
+ 
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_USER')
+
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Pour tester
 
 WSGI_APPLICATION = 'task.wsgi.application'
 

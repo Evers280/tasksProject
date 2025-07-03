@@ -15,11 +15,8 @@ class MastersSerializer(serializers.ModelSerializer):
         Crée et retourne un nouvel utilisateur Masters avec un mot de passe haché.
         """
         try:
-            user = Masters.objects.create_user(
-                username=validated_data['email'], # Définit le champ 'username' du modèle
-                email=validated_data['email'],    # Définit le champ 'email' du modèle (qui est votre USERNAME_FIELD)
-                password=validated_data['password']
-            )
+            # Utilise **validated_data pour passer les arguments email et password directement
+            user = Masters.objects.create_user(**validated_data)
             return user
         except IntegrityError:
             raise serializers.ValidationError(

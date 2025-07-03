@@ -28,6 +28,8 @@ class MastersManager(BaseUserManager):
 class Masters(AbstractUser):
     email = models.EmailField(_("email address"), unique=True)
 
+    username = None
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
 

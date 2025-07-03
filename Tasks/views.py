@@ -31,3 +31,5 @@ class TasksViewSet(viewsets.ModelViewSet):
             self.permission_classes = [IsAdminUser]
             
         return super().get_permissions()
+    
+    
